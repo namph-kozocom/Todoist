@@ -36,7 +36,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition">
+                        <a href="{{ route('auth.logout') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition">
                             <i class="fa-solid fa-right-from-bracket"></i> Logout
                         </a>
                     </li>

@@ -15,11 +15,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/login', [AuthController::class, 'loginPage'])->name('auth.login');
-Route::get('/register', [AuthController::class, 'registerPage'])->name('auth.register');
+// Auth Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'loginPage'])->name('auth.loginPage');
+    Route::get('/register', [AuthController::class, 'registerPage'])->name('auth.registerPage');
 
-Route::get('/', function () {
-    return redirect()->route('tasks.index');
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
-Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+
+// Protected Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('tasks.index');
+    });
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+});

@@ -5,7 +5,7 @@
 @section('content')
     <h2 class="text-2xl font-bold mb-5">Register</h2>
 
-    <form action="#" method="POST">
+    <form action="{{ route('auth.register') }}" method="POST">
         @csrf
         <div class="mb-4">
             <label class="block">Username</label>
@@ -23,6 +23,6 @@
     </form>
 
     <p class="mt-4 text-center">
-        Already have an account? <a href="{{ route('auth.login') }}" class="text-blue-500">Login</a>
+        Already have an account? <a href="{{ route('auth.loginPage') }}" class="text-blue-500">Login</a>
     </p>
 @endsection
