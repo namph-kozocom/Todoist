@@ -30,6 +30,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('tasks.assigned') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fa-solid fa-user"></i> Assign To Me
+                        </a>
+                        </li>
+                        <li>
                         <a href="{{ route('tasks.create') }}"
                             class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition">
                             <i class="fa-solid fa-plus"></i> Create Task
@@ -51,11 +56,10 @@
             <header class="bg-white shadow p-4 flex justify-between items-center">
                 <h1 class="text-lg font-semibold">@yield('page-title', 'Dashboard')</h1>
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('tasks.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        + New Task
-                    </a>
+                    <span>Welcome, {{ auth()->user()->username }}</span>
                     <div class="relative">
-                        <img src="https://i.pravatar.cc/40" alt="User Avatar" class="w-10 h-10 rounded-full">
+                        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->username}}" alt="User Avatar"
+                            class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </header>

@@ -27,6 +27,24 @@ class TaskController extends Controller
         }
     }
 
+    public function assigned($page = 1, $limit = 10)
+    {
+        try {
+            $tasks = Task::with(['creator:id,username', 'assigns.assigner:id,username'])
+                ->whereHas('assigns', function ($query) {
+                    $query->where('assigner_id', Auth::id());
+                })
+                ->orderBy('status')
+                ->orderBy('created_at', 'desc')
+                ->paginate(perPage: $limit, page: $page);
+
+            return view('tasks.index', compact('tasks'));
+        } catch (\Throwable $th) {
+            return back()->withError($th->getMessage());
+        }
+    }
+
+
     public function create()
     {
         try {
