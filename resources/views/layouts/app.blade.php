@@ -18,7 +18,7 @@
 
         <!-- Sidebar (Fixed) -->
         <aside class="w-64 bg-white shadow-lg fixed left-0 top-0 h-full flex flex-col">
-            <div class="p-5 border-b">
+            <div class="p-5">
                 <h2 class="text-xl font-bold text-gray-700">Task Manager</h2>
             </div>
             <nav class="flex-1 p-4">
