@@ -16,8 +16,8 @@
     <!-- Main Container -->
     <div class="flex h-screen">
 
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg flex flex-col">
+        <!-- Sidebar (Fixed) -->
+        <aside class="w-64 bg-white shadow-lg fixed left-0 top-0 h-full flex flex-col">
             <div class="p-5 border-b">
                 <h2 class="text-xl font-bold text-gray-700">Task Manager</h2>
             </div>
@@ -44,15 +44,14 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <!-- Main Content (Shifted Right) -->
+        <div class="flex-1 ml-64 flex flex-col h-screen">
 
-            <!-- Header -->
+            <!-- Header (Fixed) -->
             <header class="bg-white shadow p-4 flex justify-between items-center">
                 <h1 class="text-lg font-semibold">@yield('page-title', 'Dashboard')</h1>
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('tasks.create') }}"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <a href="{{ route('tasks.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                         + New Task
                     </a>
                     <div class="relative">
@@ -61,8 +60,8 @@
                 </div>
             </header>
 
-            <!-- Main Content -->
-            <main class="flex-1 p-6">
+            <!-- Main Content (Scrollable) -->
+            <main class="flex-1 p-6 overflow-y-auto">
                 @yield('content')
             </main>
         </div>

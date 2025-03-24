@@ -8,16 +8,16 @@
     </div>
 
     <div class="bg-white shadow-md rounded-lg p-8 w-full">
-        <form action="#" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form action="{{ route('tasks.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            <!-- Tiêu đề Task -->
+            <!-- Task Title -->
             <div>
                 <label class="block text-lg font-medium mb-1">Title</label>
                 <input type="text" name="title" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
             </div>
 
-            <!-- Mô tả Task (Hỗ trợ dán hình ảnh) -->
+            <!-- Task description-->
             <div>
                 <label class="block text-lg font-medium mb-1">Description</label>
                 <input id="description" type="hidden" name="description">
@@ -25,20 +25,20 @@
                     class="w-full h-[200px] border p-3 rounded-lg focus:ring focus:ring-blue-400"></trix-editor>
             </div>
 
-            <!-- Ngày Hạn -->
+            <!-- Due Date -->
             <div class="flex space-x-4">
                 <div class="w-1/2">
                     <label class="block text-lg font-medium mb-1">Due Date</label>
                     <input type="date" name="due_date" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
                 </div>
 
-                <!-- Chọn Trạng Thái -->
+                <!-- Status -->
                 <div class="w-1/2">
                     <label class="block text-lg font-medium mb-1">Status</label>
                     <select name="status" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
-                        <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
                     </select>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <ul>
                         <template x-for="user in filteredUsers" :key="user . id">
                             <li @click="toggleUser(user)" class="p-3 hover:bg-blue-100 cursor-pointer">
-                                <span x-text="user.name"></span>
+                                <span x-text="user.username"></span>
                             </li>
                         </template>
                     </ul>
@@ -62,7 +62,7 @@
                 <div class="flex flex-wrap gap-2 mt-2">
                     <template x-for="user in selectedUsers" :key="user . id">
                         <div class="flex items-center bg-blue-600 text-white px-3 py-1 rounded-lg">
-                            <span x-text="user.name"></span>
+                            <span x-text="user.username"></span>
                             <button @click="removeUser(user)" class="ml-2 text-white font-bold">&times;</button>
                         </div>
                     </template>
@@ -72,7 +72,15 @@
                     <input type="hidden" name="assignees[]" :value="user . id">
                 </template>
             </div>
-
+            @if ($errors->any())
+                <div class="text-red-700">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>*{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <!-- Nút Submit -->
             <button type="submit"
@@ -87,20 +95,14 @@
     <script>
         function taskAssignees() {
             return {
-                users: [
-                    { id: 1, name: "John Doe" },
-                    { id: 2, name: "Jane Smith" },
-                    { id: 3, name: "Alice Johnson" },
-                    { id: 4, name: "Michael Brown" },
-                    { id: 5, name: "Emma Davis" }
-                ],
+                users: @json($users),
                 search: "",
                 filteredUsers: [],
                 selectedUsers: [],
 
                 filterUsers() {
                     this.filteredUsers = this.users.filter(user =>
-                        user.name.toLowerCase().includes(this.search.toLowerCase()) &&
+                        user.username.toLowerCase().includes(this.search.toLowerCase()) &&
                         !this.selectedUsers.some(u => u.id === user.id)
                     );
                 },
