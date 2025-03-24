@@ -1,44 +1,50 @@
 @extends('layouts.app')
 
-@section('title', 'Create Task')
+@section('title', $task ? 'Edit Task' : 'Create Task')
 
 @section('content')
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold">Create New Task</h1>
+        <h1 class="text-3xl font-bold">{{ $task ? 'Edit Task' : 'Create New Task' }}</h1>
     </div>
 
     <div class="bg-white shadow-md rounded-lg p-8 w-full">
-        <form action="{{ route('tasks.store') }}" method="POST" class="space-y-6">
+        <form action="{{ $task ? route('tasks.update', $task->id) : route('tasks.store') }}" method="POST" class="space-y-6">
             @csrf
+            @if ($task)
+                @method('PUT')
+            @endif
 
             <!-- Task Title -->
             <div>
                 <label class="block text-lg font-medium mb-1">Title</label>
-                <input type="text" name="title" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
+                <input type="text" name="title" value="{{ old('title', $task->title ?? '') }}"
+                    class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
             </div>
 
-            <!-- Task description-->
+            <!-- Task description -->
             <div>
                 <label class="block text-lg font-medium mb-1">Description</label>
-                <input id="description" type="hidden" name="description">
+                <input id="description" type="hidden" name="description" value="{{ old('description', $task->description ?? '') }}">
                 <trix-editor input="description"
                     class="w-full h-[200px] border p-3 rounded-lg focus:ring focus:ring-blue-400"></trix-editor>
             </div>
 
-            <!-- Due Date -->
+            <!-- Due Date & Status -->
             <div class="flex space-x-4">
                 <div class="w-1/2">
                     <label class="block text-lg font-medium mb-1">Due Date</label>
-                    <input type="date" name="due_date" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
+                    <input type="date" name="due_date" value="{{ old('due_date', $task?->due_date?->format('Y-m-d') ?? '') }}"
+                        class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
                 </div>
 
-                <!-- Status -->
                 <div class="w-1/2">
                     <label class="block text-lg font-medium mb-1">Status</label>
                     <select name="status" class="w-full border p-3 rounded-lg focus:ring focus:ring-blue-400">
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
+                        @foreach (['Pending', 'In Progress', 'Completed'] as $status)
+                            <option value="{{ $status }}" {{ old('status', $task->status ?? '') == $status ? 'selected' : '' }}>
+                                {{ $status }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -72,6 +78,7 @@
                     <input type="hidden" name="assignees[]" :value="user . id">
                 </template>
             </div>
+
             @if ($errors->any())
                 <div class="text-red-700">
                     <ul>
@@ -85,10 +92,11 @@
             <!-- Nút Submit -->
             <button type="submit"
                 class="w-full bg-blue-600 text-white p-3 rounded-lg font-medium text-lg hover:bg-blue-700 transition">
-                Create Task
+                {{ $task ? 'Update Task' : 'Create Task' }}
             </button>
         </form>
     </div>
+
     {{-- Script --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.js"></script>
@@ -98,8 +106,7 @@
                 users: @json($users),
                 search: "",
                 filteredUsers: [],
-                selectedUsers: [],
-
+                selectedUsers: @json(isset($task) ? $task->assigns->map(fn($a) => ['id' => $a->assigner->id, 'username' => $a->assigner->username]) : []),
                 filterUsers() {
                     this.filteredUsers = this.users.filter(user =>
                         user.username.toLowerCase().includes(this.search.toLowerCase()) &&

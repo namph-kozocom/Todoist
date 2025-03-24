@@ -15,7 +15,8 @@ class TaskController extends Controller
     public function index($page = 1, $limit = 10)
     {
         try {
-            $tasks = Task::with(['creator:id,username', 'assigns.assigner:id,username'])
+            $tasks = Task::with(['creator:id,username', 'assigns'])
+                ->with('assigns.assigner:id,username')
                 ->orderBy('status')
                 ->orderBy('created_at', 'desc')
                 ->paginate(perPage: $limit, page: $page);
@@ -30,8 +31,21 @@ class TaskController extends Controller
     {
         try {
             $users = User::orderBy('username')->get(['id', 'username']);
+            $task = null;
 
-            return view('tasks.create', compact('users'));
+            return view('tasks.form', compact('users', 'task'));
+        } catch (\Throwable $th) {
+            return back()->withError($th->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        try {
+            $users = User::orderBy('username')->get(['id', 'username']);
+            $task = Task::with(['creator:id,username', 'assigns.assigner:id,username'])->find($id);
+
+            return view('tasks.form', compact('users', 'task'));
         } catch (\Throwable $th) {
             return back()->withError($th->getMessage());
         }
@@ -66,6 +80,44 @@ class TaskController extends Controller
             return back()->withError($th->getMessage());
         }
     }
+
+    public function update(TaskRequest $request, Task $task)
+    {
+        try {
+            $validated = $request->validated();
+            $task->update([
+                'title'       => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'due_date'    => $validated['due_date'] ?? null,
+                'status'      => $validated['status'],
+            ]);
+
+            $newAssignees = $validated['assignees'] ?? [];
+            $currentAssignees = $task->assigns()->pluck('assigner_id')->toArray();
+            Assign::where('task_id', $task->id)
+                ->whereNotIn('assigner_id', $newAssignees)
+                ->delete();
+
+            $newAssignData = [];
+            foreach ($newAssignees as $assignerId) {
+                if (!in_array($assignerId, $currentAssignees)) {
+                    $newAssignData[] = [
+                        'assigner_id' => $assignerId,
+                        'task_id'     => $task->id,
+                    ];
+                }
+            }
+
+            if (!empty($newAssignData)) {
+                Assign::insert($newAssignData);
+            }
+
+            return redirect()->route('tasks.index')->withSuccess('Update task successfully');
+        } catch (\Throwable $th) {
+            return back()->withError($th->getMessage());
+        }
+    }
+
 
     public function destroy($id)
     {
