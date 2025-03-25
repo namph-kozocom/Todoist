@@ -6,6 +6,7 @@ use App\Http\Requests\Task\TaskRequest;
 use App\Models\Assign;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\TaskNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -73,25 +74,13 @@ class TaskController extends Controller
     {
         try {
             $validated = $request->validated();
-            $task = Task::create([
+            Task::create([
                 'title'       => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'due_date'    => $validated['due_date'] ?? null,
                 'status'      => $validated['status'],
                 'created_by'  => Auth::id(),
             ]);
-
-            if (!empty($validated['assignees'])) {
-                $assignData = [];
-                foreach ($validated['assignees'] as $assignerId) {
-                    $assignData[] = [
-                        'assigner_id' => $assignerId,
-                        'task_id'     => $task->id
-                    ];
-                }
-
-                Assign::insert($assignData);
-            }
 
             return redirect()->route('tasks.index')->withSuccess('Create task successfully');
         } catch (\Throwable $th) {
